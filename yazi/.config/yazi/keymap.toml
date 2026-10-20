@@ -1,0 +1,23 @@
+[[mgr.prepend_keymap]]
+on   = [ "<C-y>" ]
+run  = '''
+  shell -- sh -c 'for f; do echo "=== $f ==="; cat "$f"; echo ""; done' _ %s | wl-copy && notify-send "Yazi" "Copied selected files to clipboard"
+'''
+desc = "Copy file contents with header"
+
+[[mgr.prepend_keymap]]
+on   = [ "<A-y>" ]
+run  = '''
+  shell -- sh -c 'for path; do echo "file://$path"; done' _ %s | wl-copy -t text/uri-list && notify-send "Yazi" "Copied selected files as URI attachment"
+'''
+desc = "Copy file(s) as URI attachment to paste in browser"
+
+[[mgr.prepend_keymap]]
+on   = [ "<C-i>" ]
+run  = 'shell -- wl-copy < "$1" && notify-send "Yazi" "Copied raw file/image to clipboard"'
+desc = "Copy raw image/file bytes to clipboard"
+
+[[mgr.prepend_keymap]]
+on   = [ "<C-n>" ]
+run  = 'shell --orphan -- ripdrag -a -x %s'
+desc = "Drag and drop selected file(s) with ripdrag"
