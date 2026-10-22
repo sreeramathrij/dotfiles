@@ -57,7 +57,19 @@ local menu        = "fuzzel"
 hl.on("hyprland.start", function()
 	hl.exec_cmd("wl-paste --type text --watch cliphist store")
 	hl.exec_cmd("wl-paste --type image --watch cliphist store")
-	hl.exec_cmd("hypridle")
+  hl.exec_cmd("hypridle")
+
+  -- Core layer rules
+  hl.exec_cmd("hyprctl keyword layerrule ignorezero,quickshell")
+  -- hl.exec_cmd("hyprctl keyword layerrule ignorealpha 0.1,quickshell")
+
+  -- iOS Liquid Glass Blur Engine
+  -- hl.exec_cmd("hyprctl keyword layerrule blurpasses 3,quickshell")
+  -- hl.exec_cmd("hyprctl keyword layerrule blursize 8,quickshell")
+  -- hl.exec_cmd("hyprctl keyword layerrule vibrancy 0.5,quickshell")
+  
+  -- Launch Quickshell with the session
+  --hl.exec_cmd("qs")
 end)
 
 
@@ -137,9 +149,9 @@ hl.config({
 
         blur = {
             enabled   = true,
-            size      = 3,
-            passes    = 1,
-            vibrancy  = 0.1696,
+            size      = 6,
+            passes    = 2,
+            vibrancy_darkness = 0.3,
         },
     },
 
@@ -380,6 +392,13 @@ hl.window_rule({
 --     no_anim = true,
 -- })
 -- overlayLayerRule:set_enabled(false)
+
+hl.layer_rule({
+  name = "quickshell-glass",
+  match = { namespace = "^quickshell$" },
+  blur = true,
+  ignore_alpha = 0.1,
+})
 
 -- Hyprland-run windowrule
 hl.window_rule({
