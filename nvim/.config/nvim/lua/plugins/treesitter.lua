@@ -1,63 +1,27 @@
 return {
   {
     "nvim-treesitter/nvim-treesitter",
-    branch = "master",
+    branch = "main",
+    lazy = false, -- main branch doesn't support lazy-loading
     build = ":TSUpdate",
-    event = { "BufReadPost", "BufNewFile" },
-    cmd = { "TSUpdateSync", "TSUpdate", "TSInstall" },
     config = function()
-      local ok, configs = pcall(require, "nvim-treesitter.configs")
-      if not ok then
-        return
-      end
+      local ts = require("nvim-treesitter")
+      ts.setup({ auto_install = true })
 
-      -- Force git cloning instead of downloading tarballs
-      require("nvim-treesitter.install").prefer_git = true
+      ts.install({
+        "c", "cpp", "css", "html", "java", "javascript", "typescript", "tsx",
+        "yaml", "toml", "qmljs", "rust", "lua", "luadoc", "vim", "vimdoc",
+        "bash", "json", "markdown", "markdown_inline", "regex",
+      })
 
-      configs.setup({
-        ensure_installed = {
-          "c",
-          "cpp",
-          "css",
-          "html",
-          "java",
-          "javascript",
-          "typescript",
-          "tsx",
-          "yaml",
-          "toml",
-          "qmljs",
-          "rust",
-          "lua",
-          "luadoc",
-          "vim",
-          "vimdoc",
-          "bash",
-          "toml",
-          "json",
-          "yaml",
-          "markdown",
-          "markdown_inline",
-          "regex",
-        },
-        sync_install = false,
-        auto_install = true,
-        highlight = {
-          enable = true,
-          additional_vim_regex_highlighting = false,
-        },
-        indent = {
-          enable = true,
-        },
-        incremental_selection = {
-          enable = true,
-          keymaps = {
-            init_selection = "<C-space>",
-            node_incremental = "<C-space>",
-            scope_incremental = false,
-            node_decremental = "<bs>",
-          },
-        },
+      -- highlighting and indent are opt-in per filetype now
+      vim.api.nvim_create_autocmd("FileType", {
+        callback = function(ev)
+          local lang = vim.treesitter.language.get_lang(ev.match)
+          if lang and pcall(vim.treesitter.start, ev.buf, lang) then
+            vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+          end
+        end,
       })
     end,
   },

@@ -13,7 +13,7 @@ return {
         },
         transparent_background = true, -- disables setting the background color.
         float = {
-            transparent = true, -- enable transparent floating windows
+            transparent = false, -- disable transparent floating windows
             solid = false, -- use solid styling for floating windows, see |winborder|
         },
         term_colors = false, -- sets terminal colors (e.g. `g:terminal_color_0`)
@@ -60,7 +60,12 @@ return {
             },
         },
         color_overrides = {},
-        custom_highlights = {},
+        custom_highlights = function(colors)
+          return {
+            FloatBorder = { fg = colors.mauve },
+            NormalFloat = { bg = colors.mantle },
+          }
+        end,
         auto_integrations = true,
         integrations = {
             cmp = true,

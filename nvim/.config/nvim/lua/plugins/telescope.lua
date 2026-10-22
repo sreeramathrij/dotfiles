@@ -1,7 +1,7 @@
 return {
   {
     "nvim-telescope/telescope.nvim",
-    branch = "0.1.x",
+    branch = "master",
     dependencies = {
       "nvim-lua/plenary.nvim",
       {
@@ -32,8 +32,12 @@ return {
 
       -- Keymaps (Leader is <Space>)
       local map = vim.keymap.set
-      map("n", "<leader>ff", builtin.find_files, { desc = "Find files" })
-      map("n", "<leader>fg", builtin.live_grep, { desc = "Live grep (search text)" })
+      map("n", "<leader>ff", function()
+        builtin.find_files({ hidden = true })
+      end, { desc = "Find files" })
+      map("n", "<leader>fg", function()
+        builtin.live_grep({ additional_args = { "--hidden" } })
+      end, { desc = "Live grep (search text)" })
       map("n", "<leader>fb", builtin.buffers, { desc = "Find buffers" })
       map("n", "<leader>fh", builtin.help_tags, { desc = "Help tags" })
       map("n", "<leader>fc", function()
@@ -41,4 +45,17 @@ return {
       end, { desc = "Find Neovim config files" })
     end,
   },
+  {
+    "nvim-telescope/telescope-ui-select.nvim",
+    config = function()
+      require("telescope").setup({
+        extenstions = {
+          ["ui-select"] = {
+            require("telescope.themes").get_dropdown({})
+          }
+        }
+      })
+      require("telescope").load_extension("ui-select")
+    end
+  }
 }

@@ -15,6 +15,7 @@ opt.smartcase = true
 opt.termguicolors = true
 opt.signcolumn = "yes"
 opt.cursorline = true
+opt.winborder = "rounded"
 
 -- Clipboard integration with Wayland
 opt.clipboard = "unnamedplus"
