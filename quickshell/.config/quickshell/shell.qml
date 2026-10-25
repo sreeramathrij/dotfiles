@@ -1,46 +1,36 @@
 import QtQuick
-import QtQuick.Layouts
 import Quickshell
+import Quickshell.Wayland
 import "./components" as Components
 
 ShellRoot {
     PanelWindow {
+        id: barWindow
         anchors {
             top: true
             left: true
             right: true
         }
-        implicitHeight: 52
+        
+        // Tall enough to render the expanded dropdown without clipping
+        implicitHeight: 340
+        
+        // Only reserve 48px of screen real estate at the top for tiled windows
+        exclusiveZone: 48
         color: "transparent"
 
-        Rectangle {
-            id: glass
-            anchors.fill: parent
-            anchors.margins: 8
-            radius: 20
-            color: "#40363a4f"   // tint, alpha 0.25: this is the region that gets blurred
+        // Crucial: Only capture mouse hover/clicks inside the visible glass island(s).
+        // Everything else passes clicks directly through to your Hyprland windows.
+        mask: Region {
+            item: centerClock.glassItem
+        }
 
-            // iOS directional light highlight, as its own layer
-            Rectangle {
-                anchors.fill: parent
-                radius: parent.radius
-                gradient: Gradient {
-                    GradientStop { position: 0.0; color: "#50ffffff" }
-                    GradientStop { position: 0.1; color: "#00ffffff" }
-                }
-            }
-
-            // Left-aligned modules
-            RowLayout {
-                anchors.fill: parent
-                anchors.leftMargin: 20
-                Components.Workspaces {}
-            }
-
-            // Centered modules
-            Components.Clock {
-                anchors.centerIn: parent
-            }
+        // [dynamic date-time] Center Island
+        Components.Clock {
+            id: centerClock
+            anchors.top: parent.top
+            anchors.topMargin: 8
+            anchors.horizontalCenter: parent.horizontalCenter
         }
     }
 }

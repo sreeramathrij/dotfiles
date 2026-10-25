@@ -142,16 +142,22 @@ hl.config({
 
         shadow = {
             enabled      = true,
-            range        = 4,
-            render_power = 3,
-            color        = 0xee1a1a1a,
+            range        = 20,
+            render_power = 4,
+            color        = 0x66000000,
         },
 
         blur = {
-            enabled   = true,
-            size      = 6,
-            passes    = 2,
-            vibrancy_darkness = 0.3,
+            enabled           = true,
+            size              = 10,
+            passes            = 4,
+            new_optimizations = true,
+            xray              = true,
+            noise             = 0.015,
+            contrast          = 1.15,
+            brightness        = 1.05,
+            vibrancy          = 0.45,
+            vibrancy_darkness = 0.2,
         },
     },
 
@@ -397,7 +403,7 @@ hl.layer_rule({
   name = "quickshell-glass",
   match = { namespace = "^quickshell$" },
   blur = true,
-  ignore_alpha = 0.1,
+  ignore_alpha = 0.05,
 })
 
 -- Hyprland-run windowrule
