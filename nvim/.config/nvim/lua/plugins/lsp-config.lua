@@ -83,7 +83,21 @@ return {
           map("<leader>lf", function() vim.lsp.buf.format({ async = true }) end, "Format Selection")
         end,
       })
-    end,
+
+      vim.api.nvim_create_user_command("LspRestart", function()
+        local clients = vim.lsp.get_clients({ bufnr = 0 })
+        for _, client in ipairs(clients) do
+          local name = client.name
+          client:stop()
+          vim.defer_fn(function()
+            vim.lsp.enable(name, false)
+            vim.lsp.enable(name, true)
+            vim.cmd("edit")
+          end, 500)
+        end
+      end, { desc = "Restart native Neovim 0.11 LSP client for current buffer" })
+
+    end
   },
   {
     "folke/lazydev.nvim",

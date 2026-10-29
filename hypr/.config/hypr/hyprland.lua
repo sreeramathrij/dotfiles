@@ -54,14 +54,17 @@ local menu        = "fuzzel"
 --   hl.exec_cmd("waybar & hyprpaper & firefox")
 -- end)
 
-hl.on("hyprland.start", function()
+  hl.on("hyprland.start", function()
 	hl.exec_cmd("wl-paste --type text --watch cliphist store")
 	hl.exec_cmd("wl-paste --type image --watch cliphist store")
   hl.exec_cmd("hypridle")
 
   -- Core layer rules
-  hl.exec_cmd("hyprctl keyword layerrule ignorezero,quickshell")
+  -- hl.exec_cmd("hyprctl keyword layerrule ignorezero,quickshell")
   -- hl.exec_cmd("hyprctl keyword layerrule ignorealpha 0.1,quickshell")
+  
+  -- Wallpaper engine
+  hl.exec_cmd("hyprpaper")
 
   -- iOS Liquid Glass Blur Engine
   -- hl.exec_cmd("hyprctl keyword layerrule blurpasses 3,quickshell")
@@ -69,7 +72,7 @@ hl.on("hyprland.start", function()
   -- hl.exec_cmd("hyprctl keyword layerrule vibrancy 0.5,quickshell")
   
   -- Launch Quickshell with the session
-  --hl.exec_cmd("qs")
+  hl.exec_cmd("qs")
 end)
 
 
@@ -85,7 +88,7 @@ hl.env("HYPRCURSOR_SIZE", "24")
 -- Force Aquamarine to use AMD iGPU as primary and NVIDIA dGPU as secondary for external displays:
 hl.env("AQ_DRM_DEVICES", "/dev/dri/amd-igpu:/dev/dri/nvidia-dgpu")
 hl.env("__GLX_VENDOR_LIBRARY_NAME", "mesa")
-hl.env("VK_DRIVER_FILES", "/usr/share/vulkan/icd.d/radeon_icd.x86_64.json")
+hl.env("VK_DRIVER_FILES", "/usr/share/vulkan/icd.d/radeon_icd.json")
 
 -----------------------
 ----- PERMISSIONS -----
@@ -199,6 +202,11 @@ hl.animation({ leaf = "zoomFactor",    enabled = true,  speed = 7,    bezier = "
 -- uncomment all if you wish to use that.
 -- hl.workspace_rule({ workspace = "w[tv1]", gaps_out = 0, gaps_in = 0 })
 -- hl.workspace_rule({ workspace = "f[1]",   gaps_out = 0, gaps_in = 0 })
+hl.window_rule({
+  name = "learnGL-float",
+  match = { class = "^(learnGL)$" },
+  float = true,
+})
 -- hl.window_rule({
 --     name  = "no-gaps-wtv1",
 --     match = { float = false, workspace = "w[tv1]" },
