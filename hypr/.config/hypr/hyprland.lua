@@ -323,7 +323,12 @@ hl.bind(mainMod .. " + " .. secondMod .. " + L",  hl.dsp.window.move({ direction
 hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("cliphist list | fuzzel --dmenu | cliphist decode | wl-copy"))
 
 -- Screenshots (Grim + Slurp -> Clipboard + Notification)
-hl.bind(mainMod .. " + " .. secondMod .. " + S", hl.dsp.exec_cmd('grim -g "$(slurp)" - | wl-copy && notify-send "Screenshot" "Region copied to clipboard"'))
+hl.bind(
+    mainMod .. " + " .. secondMod .. " + S",
+    hl.dsp.exec_cmd(
+        [[grim -g "$(slurp -w 0)" - | wl-copy && notify-send "Screenshot" "Region copied to clipboard"]]
+    )
+)
 hl.bind("PRINT", hl.dsp.exec_cmd('grim - | wl-copy && notify-send "Screenshot" "Fullscreen copied to clipboard"'))
 
 -- Color Picker
@@ -406,6 +411,11 @@ hl.window_rule({
 --     no_anim = true,
 -- })
 -- overlayLayerRule:set_enabled(false)
+hl.layer_rule({
+  name = "no-anim-slurp",
+  match = { namespace = "^selection$" },
+  no_anim = true,
+})
 
 hl.layer_rule({
   name = "quickshell-glass",
