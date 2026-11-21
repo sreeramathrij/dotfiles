@@ -34,7 +34,7 @@ return {
 
       -- Array of all servers to be enabled
       local servers = {
-        "clangd", "rust_analyzer", "ts_ls", "html", 
+        "clangd", "rust_analyzer", "ts_ls", "html",
         "cssls", "jsonls", "bashls", "yamlls", "taplo", "lua_ls", "qmlls"
       }
 
@@ -55,10 +55,10 @@ return {
         },
       })
 
-      -- vim.lsp.config("qmlls", {
-      --  cmd = { "qmlls6" },
-      --  capabilities = capabilities,
-      -- })
+      vim.lsp.config("qmlls", {
+        cmd = { "qmlls6" },
+        capabilities = capabilities,
+      })
 
       -- 3. Enable all servers at once using the native 0.11 API
       vim.lsp.enable(servers)

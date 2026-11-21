@@ -18,16 +18,24 @@
 hl.monitor({
     output   = "eDP-2",
     mode     = "1920x1080@144.0",
-    position = "0x0",
+    position = "1920x0",
     scale    = 1,
 })
 
 hl.monitor({
     output   = "HDMI-A-1",
     mode     = "1920x1080@240.0",
-    position = "1920x0",
+    position = "3840x0",
     scale    = 1,
 })
+
+hl.monitor({
+    output   = "DVI-I-1",
+    mode     = "1920x1080@60.0",
+    position = "0x0",
+    scale    = 1,
+})
+
 
 ---------------------
 ---- MY PROGRAMS ----
@@ -86,7 +94,7 @@ hl.env("XCURSOR_SIZE", "24")
 hl.env("HYPRCURSOR_SIZE", "24")
 
 -- Force Aquamarine to use AMD iGPU as primary and NVIDIA dGPU as secondary for external displays:
-hl.env("AQ_DRM_DEVICES", "/dev/dri/amd-igpu:/dev/dri/nvidia-dgpu")
+hl.env("AQ_DRM_DEVICES", "/dev/dri/amd-igpu:/dev/dri/nvidia-dgpu:/dev/dri/card0")
 hl.env("__GLX_VENDOR_LIBRARY_NAME", "mesa")
 hl.env("VK_DRIVER_FILES", "/usr/share/vulkan/icd.d/radeon_icd.json")
 
