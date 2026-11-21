@@ -80,7 +80,7 @@ local menu        = "fuzzel"
   -- hl.exec_cmd("hyprctl keyword layerrule vibrancy 0.5,quickshell")
   
   -- Launch Quickshell with the session
-  hl.exec_cmd("qs")
+  hl.exec_cmd("/home/rombie/.local/share/neobrix-compatible/start-neobrix.sh")
 end)
 
 
@@ -440,3 +440,9 @@ hl.window_rule({
     move  = "20 monitor_h-120",
     float = true,
 })
+
+-- BEGIN NEOBRIX COMPAT APPEARANCE (managed by adapt_neobrix.py)
+-- Visual styling only: your monitors, GPU variables, binds and input stay unchanged.
+dofile((os.getenv("XDG_DATA_HOME") or (os.getenv("HOME") .. "/.local/share"))
+       .. "/neobrix-compatible/hypr/appearance.lua")
+-- END NEOBRIX COMPAT APPEARANCE
