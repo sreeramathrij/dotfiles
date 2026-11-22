@@ -1,0 +1,61 @@
+pragma Singleton
+import QtQuick
+import Quickshell
+import Quickshell.Io
+import Quickshell.Hyprland
+
+Singleton {
+    id: root
+    property bool enabled: false
+    property int spaces: 5
+    property var monitors: []
+    property bool refreshPending: false
+    function refresh() {
+        refreshPending = true
+        Qt.callLater(root.flushRefresh)
+    }
+    function flushRefresh() {
+        if (!refreshPending || probe.running || change.running) return
+        refreshPending = false
+        probe.running = true
+    }
+    function ids(name) { for (const m of monitors) if (m.name === name) return m.ids; return [] }
+    function setEnabled(value) { change.command = ["neobrix-workspaces", "enabled", value ? "1" : "0"]; change.running = true }
+    function setSpaces(value) { change.command = ["neobrix-workspaces", "spaces", String(value)]; change.running = true }
+    function focus(local, monitor) { action.command = ["neobrix-workspaces", "focus", String(local)].concat(monitor ? ["--monitor", monitor] : []); action.running = true }
+    function cycle(delta, monitor) { action.command = ["neobrix-workspaces", "cycle", String(delta)].concat(monitor ? ["--monitor", monitor] : []); action.running = true }
+    function consume(text) { try { const v = JSON.parse(text); enabled = !!v.enabled; spaces = v.spaces || 5; monitors = v.monitors || [] } catch(e) {} }
+    Process {
+        id: probe
+        command: ["neobrix-workspaces", "show"]
+        running: true
+        // Keep events received during this run and drain them after Process
+        // has finished updating its running state and collecting stdout.
+        onExited: Qt.callLater(root.flushRefresh)
+        stdout: StdioCollector {
+            onStreamFinished: root.consume(text)
+        }
+        stderr: StdioCollector {}
+    }
+    // Monitor hotplugging does not necessarily restart the shell.  Reconcile
+    // exactly when Hyprland reports a monitor topology event, rather than
+    // polling the compositor while the shell is idle.
+    Connections {
+        target: Hyprland
+        function onRawEvent(event) {
+            if (event && event.name && event.name.indexOf("monitor") !== -1)
+                root.refresh()
+        }
+    }
+    Process {
+        id: change
+        running: false
+        onExited: Qt.callLater(root.refresh)
+        stderr: StdioCollector {}
+    }
+    Process {
+        id: action
+        running: false
+        stderr: StdioCollector {}
+    }
+}
