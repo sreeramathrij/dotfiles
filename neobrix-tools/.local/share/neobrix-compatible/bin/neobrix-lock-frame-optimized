@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# Convert the selected NeoBrix wallpaper into a small, private, static lock frame.
+set -euo pipefail
+state="${XDG_STATE_HOME:-$HOME/.local/state}/neobrix"
+sel="$state/wallpaper"
+out="$state/lock-background.png"
+stamp="$state/lock-background.stamp"
+mkdir -p -m 700 "$state"
+if [[ ! -s "$sel" ]]; then
+  echo 'No NeoBrix wallpaper selection; retaining previous lock background' >&2
+  exit 1
+fi
+IFS= read -r wallpaper < "$sel" || true
+if [[ ! -f "$wallpaper" ]]; then
+  printf 'Cannot find wallpaper: %s\n' "$wallpaper" >&2
+  exit 1
+fi
+# File identity is stable across re-locks. No FFmpeg work when unchanged.
+identity=$(printf '%s\n' "$wallpaper"; stat -c '%s %Y' -- "$wallpaper")
+identity=$(printf '%s' "$identity" | sha256sum | cut -d' ' -f1)
+if [[ -s "$out" && -s "$stamp" && $(cat "$stamp") == "$identity" ]]; then
+  exit 0
+fi
+umask 077
+tmp=$(mktemp "$state/.lock-background.XXXXXXXX.png")
+trap 'rm -f -- "$tmp"' EXIT
+# One frame, 1600 px maximum width, no audio. Low CPU burst; no lock-screen video decoder.
+ffmpeg -hide_banner -nostdin -loglevel error -y -threads 2 \
+  -i "$wallpaper" -map 0:v:0 -frames:v 1 \
+  -vf "scale='min(1600,iw)':-2:flags=bicubic,format=rgb24" \
+  -update 1 -f image2 "$tmp"
+[[ -s "$tmp" ]] || exit 1
+chmod 600 "$tmp"
+mv -f -- "$tmp" "$out"
+printf '%s\n' "$identity" > "$stamp"

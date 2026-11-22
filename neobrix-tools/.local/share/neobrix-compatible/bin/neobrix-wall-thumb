@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Cache a still thumbnail for MP4/WebM/MKV/GIF. No wallpaper state is modified.
+set -euo pipefail
+[[ $# -eq 1 && -f "$1" ]] || { echo "Usage: neobrix-wall-thumb FILE" >&2; exit 2; }
+command -v ffmpeg >/dev/null || { echo 'ffmpeg is required' >&2; exit 127; }
+command -v md5sum >/dev/null || { echo 'md5sum is required' >&2; exit 127; }
+source_file=$1
+cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/neobrix/wallpaper-thumbs"
+mkdir -p -m 700 -- "$cache_dir"
+file_id=$(printf '%s' "$source_file" | md5sum)
+file_id=${file_id%% *}
+output="$cache_dir/$file_id.jpg"
+if [[ -s "$output" && ! "$source_file" -nt "$output" ]]; then
+    printf '%s\n' "$output"
+    exit 0
+fi
+tmp=$(mktemp "$cache_dir/.thumb.XXXXXXXX.jpg")
+trap 'rm -f -- "$tmp"' EXIT
+ffmpeg -nostdin -hide_banner -loglevel error -y -ss 0.2 -i "$source_file" \
+    -frames:v 1 -vf 'scale=360:220:force_original_aspect_ratio=decrease,pad=360:220:(ow-iw)/2:(oh-ih)/2' \
+    -q:v 5 "$tmp"
+test -s "$tmp"
+mv -f -- "$tmp" "$output"
+printf '%s\n' "$output"

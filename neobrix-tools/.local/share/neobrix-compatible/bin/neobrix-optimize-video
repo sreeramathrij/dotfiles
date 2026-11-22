@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Optional one-time conversion to a 1600px, 24fps, muted H.264 wallpaper.
+set -euo pipefail
+if [[ $# -ne 1 || ! -f "$1" ]]; then
+  echo 'Usage: neobrix-optimize-video /full/path/to/video.mp4' >&2
+  exit 2
+fi
+input=$(realpath -- "$1")
+dir="${XDG_CACHE_HOME:-$HOME/.cache}/neobrix/optimized-videos"
+mkdir -p -- "$dir"
+hash=$(printf '%s' "$input" | sha256sum | cut -c1-12)
+base=$(basename -- "${input%.*}")
+out="$dir/${base}-${hash}-1600p24.mp4"
+if [[ -s "$out" ]]; then printf '%s\n' "$out"; exit 0; fi
+tmp="$dir/.${base}-${hash}-$$.mp4"
+trap 'rm -f -- "$tmp"' EXIT
+ffmpeg -hide_banner -nostdin -loglevel error -y -i "$input" \
+ -map 0:v:0 -an -vf "fps=24,scale='min(1600,iw)':-2:flags=bicubic" \
+ -c:v libx264 -preset veryfast -crf 24 -pix_fmt yuv420p \
+ -movflags +faststart "$tmp"
+mv -f -- "$tmp" "$out"
+printf '%s\n' "$out"

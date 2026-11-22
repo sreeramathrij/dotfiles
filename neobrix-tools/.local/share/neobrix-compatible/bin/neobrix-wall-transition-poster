@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Create a full-HD still for smooth wallpaper changes. Does not change selection.
+set -euo pipefail
+umask 077
+[[ $# -eq 1 && -f "$1" ]] || { echo 'Usage: neobrix-wall-transition-poster FILE' >&2; exit 2; }
+case "${1,,}" in
+  *.mp4|*.webm|*.mkv|*.gif) ;;
+  *) exit 0 ;;
+esac
+command -v ffmpeg >/dev/null || { echo 'ffmpeg is required' >&2; exit 127; }
+source_file=$1
+cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/neobrix/wallpaper-transition-posters"
+mkdir -p -m 700 -- "$cache_dir"
+file_id=$(printf '%s' "$source_file" | md5sum)
+file_id=${file_id%% *}
+output="$cache_dir/$file_id.jpg"
+if [[ -s "$output" && ! "$source_file" -nt "$output" ]]; then
+    exit 0
+fi
+tmp=$(mktemp "$cache_dir/.poster.XXXXXXXX.jpg")
+trap 'rm -f -- "$tmp"' EXIT
+# Prefer a frame near the start; fall back to the first frame for very short GIFs.
+if ! ffmpeg -nostdin -hide_banner -loglevel error -y -ss 0.2 -i "$source_file" \
+   -frames:v 1 -vf 'scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2' -q:v 3 "$tmp"; then
+    ffmpeg -nostdin -hide_banner -loglevel error -y -i "$source_file" \
+      -frames:v 1 -vf 'scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2' -q:v 3 "$tmp"
+fi
+test -s "$tmp"
+mv -f -- "$tmp" "$output"

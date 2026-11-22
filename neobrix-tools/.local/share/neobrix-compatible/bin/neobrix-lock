@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Optional standalone launcher: choose Dawn/Dusk from Quickshell's saved theme.
+set -euo pipefail
+bin="${HOME}/.local/share/neobrix-compatible/bin"
+"$bin/neobrix-lock-frame-optimized" >/dev/null 2>&1 || true
+mode='dusk'
+if [[ ${NEOBRIX_LOCK_THEME:-} == dawn || ${NEOBRIX_LOCK_THEME:-} == dusk ]]; then
+    mode=$NEOBRIX_LOCK_THEME
+    exec hyprlock --config "$HOME/.config/hypr/neobrix-lock-$mode.conf" "$@"
+fi
+state="${XDG_STATE_HOME:-$HOME/.local/state}/quickshell"
+if [[ -d "$state" ]]; then
+    # Quickshell.statePath("theme-mode") varies by the shell ID.
+    latest=$(find "$state" -type f -name theme-mode -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -n1 | cut -d' ' -f2- || true)
+    if [[ -n "$latest" && -f "$latest" ]]; then
+        IFS= read -r saved < "$latest" || true
+        if [[ "$saved" == dawn || "$saved" == dusk ]]; then mode="$saved"; fi
+    fi
+fi
+conf="$HOME/.config/hypr/neobrix-lock-$mode.conf"
+if [[ -f "$conf" ]]; then
+    exec hyprlock --config "$conf" "$@"
+fi
+exec hyprlock "$@"
